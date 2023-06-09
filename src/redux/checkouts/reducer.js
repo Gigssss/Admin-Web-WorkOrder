@@ -13,6 +13,8 @@ const statuslist = {
 
 const initialState = {
   data: [],
+  pages: 0,
+  size: 5,
   status: statuslist.idle,
 };
 
@@ -29,6 +31,7 @@ export default function reducer(state = initialState, action) {
         ...state,
         status: statuslist.success,
         data: action.checkouts,
+        pages: action.pages,
       };
     default:
       return state;

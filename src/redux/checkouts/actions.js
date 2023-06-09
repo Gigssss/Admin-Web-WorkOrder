@@ -29,7 +29,7 @@ export const errorFetchingCheckouts = () => {
 };
 
 export const fetchCheckouts = () => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     dispatch(startFetchingCheckouts());
 
     try {
@@ -37,17 +37,33 @@ export const fetchCheckouts = () => {
         dispatch(clearNotif());
       }, 5000);
 
-      let res = await debouncedFetchCheckouts("/checkout");
+      let params = {
+        page: getState().checkouts?.page || 0,
+        size: getState().checkouts?.size || 5,
+      }
+
+      let res = await debouncedFetchCheckouts("/checkout", params);
       console.log("test", res)
 
-      for (const element of res.data.data.checkouts) {
-        element.userRequestName = element.User.name;
-        element.departUser = element.Departement.nama
-      };
+      let _temp = [];
+
+      res.data.data.checkouts.forEach((res) => {
+         _temp.push({
+           namaBarang: res.namaBarang,
+           kodeBarang: res.kodeBarang,
+           permasalahan: res.permasalahan,
+           tindakan: res.tindakan,
+           gantiSparepart: res.gantiSparepart,
+           UserRequestId: res.UserRequestId,
+           DepartUserId: res.DepartUserId,
+           UserApproveId: res.UserApproveId
+         })
+      })
 
       dispatch(
         successFetchingCheckouts({
-          checkouts: res.data.data.checkouts,
+          checkouts: _temp,
+          pages: res.data.data.pages
         })
       );
     } catch (error) {
